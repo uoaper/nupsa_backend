@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9a15832c-1b8e-40e1-9320-c74c3772b6e7" name="nupsa.me" url="http://47.91.91.22">
+        <fileTransfer host="47.91.91.22" port="22" rootFolder="/var/www/html/a" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
