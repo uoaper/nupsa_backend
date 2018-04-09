@@ -5,10 +5,14 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 
     <style>
         body 		{ padding-top:10px; }
+        body 		{ padding-left:100px; }
+        body 		{ padding-right:100px; }
     </style>
 </head>
 <body>
@@ -24,14 +28,14 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Nupsa.me</a>
+            <a class="navbar-brand" href="/">Nupsa.me</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
 
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/profile">Profile</a></li>
+                <li><a href="/profile">Profile <%= user.googlename %> (<%= user.googleemail %>)</a></li>
 
             </ul>
         </div><!-- /.navbar-collapse -->
@@ -43,15 +47,187 @@
 
 <br>
 
-<h2>Here will be your page dear user </h2>
 
-<div class="my-chart">
-<canvas id="myChart"></canvas>
+<div class = "row">
+    <div class = "column">
+        <h2>PHQ - 9 Tests history</h2>
+<div class="column">
+<canvas id="userscreated"></canvas>
+</div>
+</div>
+    <div class = "column">
+        <h2>Your Nupsas log</h2>
+
+        <table>
+            <tr>
+
+                <%= user.googleid %><br>
+            </tr>
+
+
+        </table>
+        <!-- Nupsa log here -->
+
+
+<table class="table" id="nupsa_log">
+
+    <tr>
+
+    </tr>
+
+</table>
+
+    </div>
 </div>
 
-<script  src="../static/graphForEmbed.js"></script>
+<!--<script  src="../static/bundle.js"></script>---->
 
 
 
 </body>
 </html>
+
+<script>
+    // Data for Log
+console.log('<%= user.googleid %>')
+    $(document).ready(function(){
+
+  //      jQuery.getJSON('http://www.nupsa.me/api/service.php', function(data){
+$.ajax ({
+    url: 'http://www.nupsa.me/api/service.php',
+ //  type: 'GET',
+ //   data: {token : 'testtsttst'},
+ /*
+    beforeSend: function(request) {
+       request.setRequestHeader('Authorization', '115059780725462795521' );
+       },
+   */
+    headers: {"Authorization": '<%= user.googleid %>'},
+
+ //  dataType: "json",
+
+    success: function(data) {
+        console.log('success kind a ');
+        console.log(data);
+        var object = $.parseJSON(data);
+        console.log(object);
+
+        var nupsa = '';
+        $.each(object, function (i, item) {
+            var datetime = item.datetime;
+            var adversity = item.adversity;
+            var belief = item.belief;
+            var conseq = item.conseq;
+            var disput = item.disput;
+            var energy = item.energy;
+
+
+            nupsa += '<tr>';
+            nupsa += '<td><b>' + datetime + '</b><br><b>Adversity: </b>' + adversity + ' <br><b>Belief: </b>' + belief + ' <br><b>Consequence: </b>' + conseq + ' <br><b>Disputation: </b>' + disput + ' <br><b>Energization: </b>' + energy + '</td>';
+            nupsa += '</tr>';
+        });
+
+        console.log(nupsa);
+        $('#nupsa_log').append(nupsa);
+    },
+
+
+
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status);
+            console.log(textStatus);
+            console.log(errorThrown);
+        }
+});
+
+        });
+</script>
+
+
+<script>
+// Data for graph
+
+var max = 0;
+var steps = 10;
+var chartData = {};
+
+function respondCanvas() {
+    var c = $('#userscreated');
+    var ctx = c.get(0).getContext("2d");
+    var container = c.parent();
+
+    var $container = $(container);
+
+    c.attr('width', $container.width()); //max width
+
+    c.attr('height', $container.height()); //max height
+
+    //Call a function to redraw other content (texts, images etc)
+
+
+
+console.log(chartData);
+    var chart = new Chart(ctx , {
+        type: 'line',
+        data: chartData
+    });
+
+
+}
+var GetChartData = function () {
+    $.ajax({
+        url: 'http://www.nupsa.me/api/graphdataforsite.php',
+        method: 'GET',
+        dataType: 'json',
+        headers: {"Authorization": '<%= user.googleid %>'},
+        success: function (data) {
+
+            console.log('success kind a for graph ');
+            console.log(data);
+  //     var object = $.parseJSON(data);
+    //   console.log(object);
+
+            var labels = new Array();
+            var dataGraph = new Array();
+
+            $.each(data, function (i, item) {
+               labels.push(item.datestamp_app);
+                dataGraph.push(item.totalscore);
+            });
+
+            console.log(labels)
+            console.log(dataGraph)
+
+            chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                 //       fillColor: "rgba(220,220,220,0.5)",
+                  //      strokeColor: "rgba(220,220,220,1)",
+                 //       pointColor: "rgba(220,220,220,1)",
+                 //       pointStrokeColor: "#fff",
+                        backgroundColor: 'rgb(159, 226, 24)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: dataGraph
+                    }
+                ]
+            };
+
+            max = Math.max.apply(Math, data.totalscore);
+            steps = 10;
+
+            respondCanvas();
+        }
+    });
+};
+
+$(document).ready(function() {
+    $(window).resize(respondCanvas);
+
+    GetChartData();
+});
+
+
+
+</script>
+

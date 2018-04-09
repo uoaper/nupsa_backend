@@ -16,16 +16,16 @@ module.exports = function(app, passport) {
 
 
     // UserPage  =========================
-    app.get('/userpage', function(req, res) {
-        res.render('userpage.ejs');
+    app.get('/userpage', isLoggedIn, function(req, res) {
+        res.render('userpage.ejs', {
+        user : req.user
+        });
     });
 
     // GraphPage  =========================
     app.get('/graph', function(req, res) {
         res.render('graph.ejs');
     });
-
-
 
 	// LOGOUT ==============================
 	app.get('/logout', function(req, res) {

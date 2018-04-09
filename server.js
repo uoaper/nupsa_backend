@@ -13,8 +13,6 @@ var cookieParser = require('cookie-parser'); // parse cookies
 var bodyParser   = require('body-parser'); // parse posts
 var session      = require('express-session'); // session middleware
 
-//need changes to test GitHub connection again
-
 require('./config/passport')(passport); // pass passport for configuration
 
 // set up our express application
@@ -24,14 +22,13 @@ app.use(bodyParser()); // get information from html forms
 app.use("/static", express.static(__dirname + '/static'));
 
 app.set('view engine', 'ejs'); // set up ejs for templating
-//app.set('views', '/var/www/html/a/views/');
+app.set('views', '/var/www/html/a/views/');
 
 // required for passport
 app.use(session({ secret: 'zomaareenstukjetekstDatjenietzomaarbedenkt' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-
 
 // routes ======================================================================
 require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
