@@ -13,6 +13,8 @@ var cookieParser = require('cookie-parser'); // parse cookies
 var bodyParser   = require('body-parser'); // parse posts
 var session      = require('express-session'); // session middleware
 
+//need changes to test GitHub connection
+
 require('./config/passport')(passport); // pass passport for configuration
 
 // set up our express application
