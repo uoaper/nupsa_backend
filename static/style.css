@@ -1,0 +1,21 @@
+
+.row {
+    display: flex;
+}
+
+.column {
+    flex: 50%;
+    height: 400px;
+
+}
+
+.my-chart {
+    width: 800px;
+    height: 1400px;
+}
+
+.column-log {
+    flex: 50%;
+    height: 100vh;
+    overflow-y:scroll;
+}

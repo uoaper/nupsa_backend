@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+    <title>Nupsa.me</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/emn178/Chart.PieceLabel.js/master/build/Chart.PieceLabel.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+    <style>
+        body 		{ padding-top:10px; }
+        body 		{ padding-left:100px; }
+        body 		{ padding-right:100px; }
+        body{
+            background-color: #DDCED5; /* Цвет фона веб-страницы */
+        }
+    </style>
+</head>
+<body>
+<!------Navigation ---- from here http://bit.ly/2xkeXTr -->
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+
+            </button>
+            <a class="navbar-brand" href="/">Nupsa.me</a>
+
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+
+
+        <ul class="nav navbar-nav navbar-left">
+            <li><a href="/method">Method</a></li>
+            <li><a href="/manifesto">Our mission</a></li>
+
+
+        </ul>
+    </div><!-- /.navbar-collapse -->
+
+</nav>
+
+
+
+
+<br>
+
+
+<div class = "row">
+    <div class = "column">
+        <h2>PHQ - 9 Tests history</h2>
+<div class="column">
+<canvas id="userscreated"></canvas>
+</div>
+</div>
+    <div class = "column-log">
+        <h2>Your Nupsas log</h2>
+
+     
+        <!-- Nupsa log here -->
+
+
+<table class="table" id="nupsa_log">
+
+    <tr>
+
+    </tr>
+
+</table>
+
+    </div>
+</div>
+
+<!--<script  src="../static/bundle.js"></script>---->
+
+
+
+</body>
+</html>
+
+<script>
+    // Data for Log
+console.log('<%= user.googleid %>')
+    $(document).ready(function(){
+
+  //      jQuery.getJSON('http://www.nupsa.me/api/service.php', function(data){
+$.ajax ({
+    url: 'http://api.nupsa.me/service.php',
+ //  type: 'GET',
+ //   data: {token : 'testtsttst'},
+ /*
+    beforeSend: function(request) {
+       request.setRequestHeader('Authorization', '115059780725462795521' );
+       },
+   */
+    headers: {"Authorization_google": '<%= user.googleid %>',
+        "Authorization_facebook": '<%= user.facebookid%>',
+    },
+
+ //  dataType: "json",
+
+    success: function(data) {
+        console.log('success kind a ');
+        console.log(data);
+        var object = $.parseJSON(data);
+        console.log(object);
+
+        var nupsa = '';
+        $.each(object, function (i, item) {
+            var datetime = item.datetime ;
+            var adversity = item.adversity;
+            var belief = item.belief;
+            var conseq = item.conseq;
+            var disput = item.disput;
+            var energy = item.energy;
+
+
+            nupsa += '<tr>';
+            nupsa += '<td><b>' + datetime + '</b><br><b>Adversity: </b>' + adversity + ' <br><b>Belief: </b>' + belief + ' <br><b>Consequence: </b>' + conseq + ' <br><b>Disputation: </b>' + disput + ' <br><b>Energization: </b>' + energy + '</td>';
+            nupsa += '</tr>';
+        });
+
+        console.log(nupsa);
+        $('#nupsa_log').append(nupsa);
+    },
+
+
+
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status);
+            console.log(textStatus);
+            console.log(errorThrown);
+        }
+});
+
+        });
+</script>
+
+
+<script>
+
+
+////// Data for graph
+
+var max = 0;
+var steps = 10;
+var chartData = {};
+
+function respondCanvas() {
+    var c = $('#userscreated');
+    var ctx = c.get(0).getContext("2d");
+    var container = c.parent();
+
+    var $container = $(container);
+
+    c.attr('width', $container.width()); //max width
+
+    c.attr('height', $container.height()); //max height
+
+    //Call a function to redraw other content (texts, images etc)
+
+
+
+console.log(chartData);
+    var chart = new Chart(ctx , {
+        type: 'bar',
+        data: chartData
+    });
+
+
+}
+var GetChartData = function () {
+    $.ajax({
+        url: 'http://api.nupsa.me/graphdataforsite.php',
+        method: 'GET',
+        dataType: 'json',
+        headers: {"Authorization_google": '<%= user.googleid %>',
+            "Authorization_facebook": '<%= user.facebookid%>',
+        },
+        success: function (data) {
+
+            console.log('success kind a for graph ');
+            console.log(data);
+  //     var object = $.parseJSON(data);
+    //   console.log(object);
+
+            var labels = new Array();
+            var dataGraph = new Array();
+
+            $.each(data, function (i, item) {
+               labels.push(item.datestamp_app);
+                dataGraph.push(item.totalscore);
+            });
+
+            console.log(labels)
+            console.log(dataGraph)
+
+            chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        fillColor: "#79D1CF",
+                        strokeColor: "#79D1CF",
+                     pointColor: "rgba(220,220,220,1)",
+                       pointStrokeColor: "#fff",
+                       backgroundColor: 'rgb(159, 226, 24)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: dataGraph,
+                        label: "Depression level history"
+                    }
+                ]
+
+            };
+
+            max = Math.max.apply(Math, data.totalscore);
+            steps = 10;
+
+            respondCanvas();
+        }
+    });
+};
+
+$(document).ready(function() {
+    $(window).resize(respondCanvas);
+
+    GetChartData();
+});
+
+
+
+
+
+</script>
